@@ -22,7 +22,7 @@ The web build emitted a nonfatal framework icon-tree-shaking warning naming an u
 
 ## Android addition
 
-The source now targets Android as well as web. All **18 local unit/widget tests** passed, including four real-file tests for reopening/editing/deleting, interrupted temporary writes, malformed saved data, and failed writes. Local analysis passed. Android SDK/KVM are not installed in this cloud; APK compilation and emulator checks run in the new Android Actions job. Emulator and release-APK results are pending that run and must not be inferred from the local widget tests. The package is development-signed, and stable production upgrade signing is not configured.
+The source now targets Android as well as web. All **18 local unit/widget tests** passed, including four real-file tests for reopening/editing/deleting, interrupted temporary writes, malformed saved data, and failed writes. Local analysis passed. A local release APK built successfully using the newly installed Android SDK and Temurin Java 17. Its APK signature, native Flutter/Dart libraries, bundled fonts, Android 7+ minimum, and absence of internet/external-storage permissions passed inspection. KVM is unavailable here. Android emulator results are still pending and must not be inferred from the local widget tests. GitHub Actions is currently queued during reported degraded service performance. The package is development-signed, and stable production upgrade signing is not configured.
 
 ## Direct Home entry
 

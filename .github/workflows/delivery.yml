@@ -144,9 +144,10 @@ jobs:
           echo "$sdk_dir/bin" >> "$GITHUB_PATH"
           "$sdk_dir/bin/flutter" --version
       - run: flutter config --enable-android --no-analytics
+      - run: flutter config --jdk-dir "$JAVA_HOME"
       - run: flutter pub get --enforce-lockfile
       - name: Install Android build packages
-        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358'
+        run: sdkmanager 'platforms;android-36' 'platforms;android-35' 'build-tools;36.0.0' 'build-tools;35.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
       - name: Build development-signed release APK
         run: |
           flutter build apk --release

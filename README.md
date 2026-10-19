@@ -26,7 +26,7 @@ New planners start empty. This styling update preserves the local-storage key an
 
 ## Cloud development
 
-The cloud SDK is retained at `/workspace/tools/flutter-3.47.7`. The cloud web workflow needs no Android SDK or emulator. The Android build and emulator checks run in GitHub Actions, using its Android SDK and Java 17. The Windows laptop needs only a modern browser for the hosted app, or the compiled download below.
+The cloud SDK is retained at `/workspace/tools/flutter-3.47.7`. The cloud also has Android SDK 35/36, NDK, CMake, and a full Java 17 compiler for APK builds. Android hardware acceleration is unavailable here; the normal emulator checks run in GitHub Actions. The Windows laptop needs only a modern browser for the hosted app, or the compiled download below.
 
 ```bash
 cd /workspace/gsu-eventhub.github.io
@@ -68,7 +68,7 @@ Open a successful [Actions run](https://github.com/GSU-EventHub/gsu-eventhub.git
 
 The current classroom APK is a release-optimized build signed with a development certificate. Stable production upgrade signing and Play Store publishing are not configured. A different CI development certificate can prevent installing a later APK over the previous one. Uninstalling permits reinstalling but **deletes that app’s events**; retain the current APK while its data matters. No private signing material is committed. GitHub secret administration was unavailable to this integration, so no claim is made that a persistent private signing key was configured.
 
-The Android job uses Flutter 3.47.7, Java 17, Android API 36 build tools, and an API 35 emulator. It verifies actual native Flutter libraries, assets, APK signature, minimum Android version, and absence of internet/storage permissions. It exercises CRUD, on-device persistence across reopening, picker/dialog Back, then installs the actual release APK and checks Home, Android Back, and force-stop/relaunch. Device evidence is uploaded separately.
+The Android job uses Flutter 3.47.7, Java 17, Android APIs 35/36, NDK 28.2, CMake 3.22.1, and an API 35 emulator. It verifies actual native Flutter libraries, assets, APK signature, minimum Android version, and absence of internet/storage permissions. It exercises CRUD, on-device persistence across reopening, picker/dialog Back, then installs the actual release APK and checks Home, Android Back, and force-stop/relaunch. Device evidence is uploaded separately.
 
 For Android development on another machine with Android SDK/Java installed:
 
@@ -78,7 +78,7 @@ flutter test integration_test/android_app_test.dart -d <android-device-id>
 flutter build apk --release
 ```
 
-Use GitHub Actions for these commands from the current cloud, which has no Android emulator/KVM device. Source downloads include the Android project but are not installable APKs.
+In this cloud, prepare or restore the Android tools with `bash tool/setup-android-cloud.sh`, then source `tool/android-cloud-env.sh` before APK commands. It selects workspace caches, Java 17, the managed proxy, and the existing system CA trust store without changing global trust or disabling TLS checks. The setup pins verified Google command-line tools and a checksum-verified Temurin JDK. Source downloads include the Android project but are not installable APKs.
 
 ### Windows x64 launch
 
