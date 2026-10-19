@@ -2,7 +2,7 @@
 
 **Live app:** https://gsu-eventhub.github.io/ · [Successful deployment and Windows verification](https://github.com/GSU-EventHub/gsu-eventhub.github.io/actions/runs/39273646977)
 
-A personal campus event scheduler built with **Flutter 3.47.7 stable and Dart**, targeting the web. A second-year student's solo project, separate from iSkedyul.
+A personal campus event scheduler built with **Flutter 3.47.7 stable and Dart**, targeting web browsers and Android. A second-year student's solo project, separate from iSkedyul.
 
 Plan seminars, workshops, sports, and club activities. **Interested, Going, and Attended are personal labels, not organizer registrations.** The planner starts empty. There are no accounts, backend services, external APIs, notifications, or paid services.
 
@@ -14,11 +14,11 @@ Plan seminars, workshops, sports, and club activities. **Interested, Going, and 
 4. Search event titles or venues in **Events**, open **Filters**, and combine category/status choices. Upcoming events are chronological; use the Past and Attended section chips for those events.
 5. Use **Calendar** for Month, Week, or Day views. Select a day, tap an hour to prefill a new event, use the arrows or Today, and expand the timetable when needed. Weeks scroll horizontally on narrow screens. Calendar selection and scroll positions survive navigation within the running app.
 
-Browser Back/Forward follows screens, forms, date/time pickers, filters, expanded calendar, and the deletion confirmation. Forms use inline choices rather than popup menus. Leaving an unsaved form discards its changes. At the app root, Back remains normal browser navigation. Routes use `/#/...`, which also works on refresh and GitHub Pages without server rewrite rules. This is a web application, including when used in an Android browser.
+Browser Back/Forward follows screens, forms, date/time pickers, filters, expanded calendar, and the deletion confirmation. Forms use inline choices rather than popup menus. Leaving an unsaved form discards its changes. At the app root, Back remains normal browser navigation. Routes use `/#/...`, which also works on refresh and GitHub Pages without server rewrite rules. These browser behaviors apply to the web version. The APK uses Android system navigation.
 
 ## Mobile interface
 
-The app is built with Flutter and Dart for **web browsers**. It is not an Android APK or a native Android application. Open the hosted site in a phone browser; no Flutter installation is needed on the device.
+The project uses Flutter and Dart for **web browsers and an Android application**. The website runs in a browser. The Android APK runs the same Flutter screens directly on the device, with app-private file storage; it is not a WebView or browser launcher. Neither version needs Flutter installed on the user’s device.
 
 The interface uses the approved restrained green design, custom GSU EventHub calendar/G logo, bundled Inter typography, and a floating four-action bottom navigation. Navigation and picker buttons have 48-pixel minimum targets. Safe-area padding keeps controls clear of phone home indicators. Forms scroll with the keyboard, and calendar weeks scroll horizontally on narrow devices. Larger text and portrait/landscape layouts are covered by widget tests.
 
@@ -26,7 +26,7 @@ New planners start empty. This styling update preserves the local-storage key an
 
 ## Cloud development
 
-The cloud SDK is retained at `/workspace/tools/flutter-3.47.7`. No Android SDK or emulator is needed. The Windows laptop needs only a modern browser for the hosted app, or the compiled download below.
+The cloud SDK is retained at `/workspace/tools/flutter-3.47.7`. The cloud web workflow needs no Android SDK or emulator. The Android build and emulator checks run in GitHub Actions, using its Android SDK and Java 17. The Windows laptop needs only a modern browser for the hosted app, or the compiled download below.
 
 ```bash
 cd /workspace/gsu-eventhub.github.io
@@ -41,7 +41,7 @@ Required development destinations include `github.com`, `storage.googleapis.com`
 
 ```bash
 source tool/cloud-env.sh
-dart format --output=none --set-exit-if-changed lib test
+dart format --output=none --set-exit-if-changed lib test integration_test
 flutter analyze --no-pub
 flutter test --no-pub
 flutter build web --release --no-pub --base-href / --no-web-resources-cdn
@@ -58,9 +58,27 @@ Outside this cloud, install Flutter 3.47.7 and use the same Flutter commands; th
 
 In this repository's **Settings → Pages**, select **GitHub Actions** as the build/deployment source. Push the implementation to `main`. The delivery workflow formats-checks, analyzes, runs tests, builds web, and runs Chromium checks before deployment. It pins **Flutter 3.47.7 stable**, builds with the root base path **`/`**, and deploys to **https://gsu-eventhub.github.io/**. No repository-name path suffix is used. Deployment must succeed in Actions before the live URL is considered verified.
 
-Every successful delivery run uploads a **compiled-web** artifact and a **Windows-x64-tested-package** artifact. Actions artifacts download inside GitHub's outer ZIP; extract that first. The Windows job compiles a standalone x64 EXE, packages all web/runtime/font assets, extracts the ZIP, executes that extracted EXE on `windows-latest`, fetches runtime assets, and runs browser checks against its local server.
+Every successful delivery run uploads **compiled-web**, **Windows-x64-tested-package**, and **Android-APK** artifacts. Android upload is gated by its emulator checks. Actions artifacts download inside GitHub's outer ZIP; extract that first. The Windows job compiles a standalone x64 EXE, packages all web/runtime/font assets, extracts the ZIP, executes that extracted EXE on `windows-latest`, fetches runtime assets, and runs browser checks against its local server.
 
-To create a public release, a maintainer pushes a `v*` tag (for example `v1.0.0`) after reviewing the changes. The release job waits for both the web verification and Windows tests. Only then does it publish **GSU-EventHub-Web.zip** and **GSU-EventHub-Windows-x64.zip** as release assets. Pushes to main deploy the site and provide tested Actions downloads. A GitHub Release requires a separate version tag.
+To create a public release, a maintainer pushes a `v*` tag (for example `v1.0.0`) after reviewing the changes. The release job waits for web verification, Windows tests, and Android emulator checks. Only then does it publish the compiled web ZIP, Windows x64 ZIP, and Android APK as release assets. Pushes to main deploy the site and provide tested Actions downloads. A GitHub Release requires a separate version tag.
+
+### Android download and install
+
+Open a successful [Actions run](https://github.com/GSU-EventHub/gsu-eventhub.github.io/actions), sign in, scroll to **Artifacts**, and download **Android-APK**. Extract the GitHub ZIP and open **GSU-EventHub-Android.apk** on an Android 7.0+ phone. Android may ask you to allow installation from that file source. The APK works offline and has no account, browser, or development-tool requirement. This is not an iPhone/iOS package. See [Android instructions](docs/ANDROID.txt).
+
+The current classroom APK is a release-optimized build signed with a development certificate. Stable production upgrade signing and Play Store publishing are not configured. A different CI development certificate can prevent installing a later APK over the previous one. Uninstalling permits reinstalling but **deletes that app’s events**; retain the current APK while its data matters. No private signing material is committed. GitHub secret administration was unavailable to this integration, so no claim is made that a persistent private signing key was configured.
+
+The Android job uses Flutter 3.47.7, Java 17, Android API 36 build tools, and an API 35 emulator. It verifies actual native Flutter libraries, assets, APK signature, minimum Android version, and absence of internet/storage permissions. It exercises CRUD, on-device persistence across reopening, picker/dialog Back, then installs the actual release APK and checks Home, Android Back, and force-stop/relaunch. Device evidence is uploaded separately.
+
+For Android development on another machine with Android SDK/Java installed:
+
+```bash
+flutter pub get --enforce-lockfile
+flutter test integration_test/android_app_test.dart -d <android-device-id>
+flutter build apk --release
+```
+
+Use GitHub Actions for these commands from the current cloud, which has no Android emulator/KVM device. Source downloads include the Android project but are not installable APKs.
 
 ### Windows x64 launch
 
@@ -72,21 +90,22 @@ GitHub's green **Code → Download ZIP** and automatic **Source code (zip)** rel
 
 ## Storage and privacy
 
-All event data is stored under `gsu-eventhub.events.v1` in that browser's local storage. Nothing is sent to organizers. Data is specific to the origin, browser, and profile: the hosted site and Windows launcher keep separate planners. Clearing site data, private browsing expiration, or changing browser/profile/address can remove or hide events. There is no cloud backup, export, sync, shared publishing, or multi-tab conflict resolution; concurrent tabs use the last saved list. Event times use local wall-clock time and do not carry a time zone.
+On the web, event data is stored under `gsu-eventhub.events.v1` in that browser’s local storage. On Android, the same schema is saved in an app-private file; no storage permission is required. Android and web planners have separate data. Uninstalling Android or clearing its app data deletes its events. Automatic Android backup is disabled. Nothing is sent to organizers. Data is specific to the origin, browser, and profile: the hosted site and Windows launcher keep separate planners. Clearing site data, private browsing expiration, or changing browser/profile/address can remove or hide events. There is no cloud backup, export, sync, shared publishing, or multi-tab conflict resolution; concurrent tabs use the last saved list. Event times use local wall-clock time and do not carry a time zone.
 
 Invalid saved records are skipped with a visible warning; valid records remain usable. Completely unreadable data opens an empty planner with a warning. Loading never overwrites the original saved data. The next successful save replaces unreadable/skipped data with the current valid list. A storage write failure leaves the current in-memory events unchanged and shows a recovery message. Deleting the final event persists an empty list; refresh never restores sample data.
 
 ## Structure
 
 - `lib/models/event.dart`: event data, date/time helpers, persisted-record validation.
-- `lib/storage/`: a tiny storage interface and browser adapter; an in-memory adapter supports tests.
+- `lib/storage/`: a small storage interface, conditional platform selection, browser adapter, and native file adapter; an in-memory adapter supports tests.
 - `lib/planner.dart`: built-in `ChangeNotifier` state, persistence, ordering, filters, calendar state.
 - `lib/screens/`: home/events list, calendar, form, details, and confirmation screens.
 - `lib/main.dart`: `go_router` browser routes. The green Material theme, bundled font, and custom logo live in `lib/branding.dart`.
-- `test/`, `tool/browser/`: model/storage/widget and compiled-browser checks.
+- `test/`, `tool/browser/`, `integration_test/`: model/storage/widget, compiled-browser, and Android emulator checks.
+- `android/`: Android manifest, Kotlin Flutter activity, app icon, and Gradle configuration.
 - `windows_launcher/`: small Go static-file launcher; Go's standard library only.
 
-Runtime Dart dependencies are `go_router` for browser history and `web` for local storage. Inter and Material icons are bundled, with font licensing included. No external font service is used. Characters outside the bundled font's glyph set may display as missing glyphs; remote font fallback is disabled.
+Runtime Dart dependencies are `go_router` for navigation, `web` for browser local storage, and `path_provider` for the Android app’s private storage directory. Inter and Material icons are bundled, with font licensing included. No external font service is used. Characters outside the bundled font's glyph set may display as missing glyphs; remote font fallback is disabled.
 
 ## Verification and course submission
 

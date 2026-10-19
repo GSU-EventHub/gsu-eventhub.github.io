@@ -35,7 +35,7 @@ jobs:
           "$sdk_dir/bin/flutter" --version
       - run: flutter config --enable-web --no-analytics
       - run: flutter pub get --enforce-lockfile
-      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test
       - run: flutter analyze --no-pub
       - run: flutter test --no-pub
       - run: flutter build web --release --no-pub --base-href / --no-web-resources-cdn
@@ -116,9 +116,74 @@ jobs:
           name: Windows-x64-tested-package
           path: dist/GSU-EventHub-Windows-x64.zip
           if-no-files-found: error
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.tool_cache }}/flutter-3.47.7
+            ~/.pub-cache
+          key: flutter-linux-stable-3.47.7-abaf9c5237
+      - name: Install pinned Flutter 3.47.7 stable
+        shell: bash
+        run: |
+          sdk_dir="$RUNNER_TOOL_CACHE/flutter-3.47.7"
+          if [ ! -x "$sdk_dir/bin/flutter" ]; then
+            git clone --depth 1 --branch 3.47.7 https://github.com/flutter/flutter.git "$sdk_dir"
+            git -C "$sdk_dir" switch -c stable
+          fi
+          test "$(git -C "$sdk_dir" rev-parse HEAD)" = abaf9c523780a608bd46686fd5e53740a07077f8
+          echo "$sdk_dir/bin" >> "$GITHUB_PATH"
+          "$sdk_dir/bin/flutter" --version
+      - run: flutter config --enable-android --no-analytics
+      - run: flutter pub get --enforce-lockfile
+      - name: Install Android build packages
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358'
+      - name: Build development-signed release APK
+        run: |
+          flutter build apk --release
+          mkdir -p dist/android
+          cp build/app/outputs/flutter-apk/app-release.apk dist/android/GSU-EventHub-Android.apk
+          cp docs/ANDROID.txt dist/android/READ-ME-Android.txt
+          python3 tool/check-android-package.py dist/android/GSU-EventHub-Android.apk
+          cd dist/android && sha256sum GSU-EventHub-Android.apk > GSU-EventHub-Android.apk.sha256
+      - name: Enable emulator acceleration
+        run: sudo setfacl -m u:$(whoami):rw /dev/kvm
+      - name: Android emulator integration and release-launch checks
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: |
+            flutter test integration_test/android_app_test.dart -d emulator-5554
+            adb install -r dist/android/GSU-EventHub-Android.apk
+            python3 tool/check-android-package.py dist/android/GSU-EventHub-Android.apk --device emulator-5554
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Android-verification-evidence
+          path: dist/android-evidence
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Android-APK
+          path: dist/android
+          if-no-files-found: error
   release:
     if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
-    needs: [verify, windows]
+    needs: [verify, windows, android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -132,8 +197,12 @@ jobs:
           name: compiled-web
           path: compiled-web
       - run: cd compiled-web && zip -r ../release/GSU-EventHub-Web.zip .
+      - uses: actions/download-artifact@v4
+        with:
+          name: Android-APK
+          path: release
       - name: Publish tested downloads
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release create "$GITHUB_REF_NAME" release/* --title "GSU EventHub $GITHUB_REF_NAME" --notes "Compiled web app and Windows x64 launcher. Extract the Windows ZIP fully, then open GSU-EventHub.exe. No development tools required."
+        run: gh release create "$GITHUB_REF_NAME" release/* --title "GSU EventHub $GITHUB_REF_NAME" --notes "Compiled web app, development-signed Android APK, and Windows x64 launcher. Extract the Windows ZIP fully, then open GSU-EventHub.exe. No development tools required."

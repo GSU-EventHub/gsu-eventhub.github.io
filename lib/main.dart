@@ -2,14 +2,46 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'planner.dart';
 import 'branding.dart';
-import 'storage/browser_store.dart';
+import 'storage/app_store.dart';
 import 'screens/home.dart';
 import 'screens/event_form.dart';
 import 'screens/event_details.dart';
 import 'screens/calendar.dart';
 import 'screens/pickers.dart';
 
-void main() => runApp(EventHub(planner: Planner(BrowserStore())));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    final storage = await openStore();
+    runApp(EventHub(planner: Planner(storage)));
+  } catch (_) {
+    runApp(
+      MaterialApp(
+        theme: eventHubTheme(),
+        home: Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Device storage could not be opened.'),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: main,
+                      child: const Text('Try again'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class EventHub extends StatefulWidget {
   final Planner planner;

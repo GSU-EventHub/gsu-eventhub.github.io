@@ -85,7 +85,7 @@ class Planner extends ChangeNotifier {
       return true;
     } catch (_) {
       warning =
-          'Your browser could not save this change. Check available storage and privacy settings, then try again.';
+          'Your device could not save this change. Check available storage and privacy settings, then try again.';
       notifyListeners();
       return false;
     }

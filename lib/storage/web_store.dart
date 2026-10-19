@@ -8,3 +8,5 @@ class BrowserStore implements KeyValueStore {
   void write(String key, String value) =>
       web.window.localStorage.setItem(key, value);
 }
+
+Future<KeyValueStore> openStore() async => BrowserStore();

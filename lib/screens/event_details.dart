@@ -111,7 +111,7 @@ class DeleteEvent extends StatelessWidget {
           icon: const Icon(Icons.delete_outline),
           title: const Text('Delete this event?'),
           content: const Text(
-            'This removes the event from this browser. You cannot undo it.',
+            'This removes the event from this planner. You cannot undo it.',
           ),
           actions: [
             TextButton(
@@ -172,7 +172,7 @@ class SaveConfirmation extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Stored in this browser on this device.',
+            'Saved locally on this device.',
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 28),

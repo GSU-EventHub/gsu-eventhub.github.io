@@ -8,3 +8,11 @@ coverage/
 dist/
 windows_launcher/gsu-eventhub-launcher
 tool/browser/node_modules/
+
+# Android machine configuration and signing material
+android/local.properties
+android/key.properties
+*.jks
+*.keystore
+android/.gradle/
+__pycache__/

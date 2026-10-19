@@ -7,7 +7,7 @@ Verified in the Linux cloud workspace on **19 October 2026** using **Flutter 3.4
 | `bash tool/setup-cloud.sh` | Passed, including a repeat run with the pinned SDK and locked dependencies |
 | `dart format --output=none --set-exit-if-changed lib test` | Passed; no changes |
 | `flutter analyze --no-pub` | Passed; no issues |
-| `flutter test --no-pub` | **14 tests passed**, no skipped tests |
+| `flutter test --no-pub` | **18 tests passed**, no skipped tests |
 | `flutter build web --release --no-pub --base-href / --no-web-resources-cdn` | Passed; compiled files in `build/web` |
 | `CHROMIUM_PATH=/usr/bin/chromium node tool/browser/check.cjs` | Passed against the final compiled web build |
 | Flutter development-server startup | Passed; actual debug app loaded in Chromium and navigated Welcome → empty dashboard |
@@ -19,6 +19,10 @@ Verified in the Linux cloud workspace on **19 October 2026** using **Flutter 3.4
 | Reusable cloud configuration | `install_script` and `start_skill` saved successfully as a draft; publication is a separate user action |
 
 The web build emitted a nonfatal framework icon-tree-shaking warning naming an unused Cupertino icon family. This app uses bundled Material icons; those icons and the app rendered during browser checks. The build completed successfully. Flutter's optional Wasm dry run also succeeded; the delivered app uses the standard JavaScript web release build.
+
+## Android addition
+
+The source now targets Android as well as web. All **18 local unit/widget tests** passed, including four real-file tests for reopening/editing/deleting, interrupted temporary writes, malformed saved data, and failed writes. Local analysis passed. Android SDK/KVM are not installed in this cloud; APK compilation and emulator checks run in the new Android Actions job. Emulator and release-APK results are pending that run and must not be inferred from the local widget tests. The package is development-signed, and stable production upgrade signing is not configured.
 
 ## Direct Home entry
 
@@ -69,6 +73,6 @@ Screenshots in [screenshots](screenshots/) show the six current screens, an empt
 - **Windows default-browser opening on the user's laptop:** actual Windows executable serving and browser tests passed in CI. Automated tests deliberately suppress automatic browser opening; the operating-system URL-handler interaction still needs a laptop check.
 - **GitHub Release:** delivery artifacts exist in the successful Actions run, but no version tag or Release was published.
 - **Direct interactive testing of the public HTTPS URL from this cloud browser:** blocked by the certificate-trust limitation described above. The live files match the Windows-tested build; no claim is made about an interactive public-URL browser run here.
-- **Physical devices and other browsers:** Chromium and simulated viewports were checked. Physical Android Back behavior, the user's Windows laptop, Safari, and Firefox have not been tested. Viewport tests do not establish native Android support; this is a web app.
+- **Physical devices and other browsers:** Chromium and simulated viewports were checked. Physical Android Back behavior, the user's Windows laptop, Safari, and Firefox have not been tested. The Android APK has separate emulator checks; viewport tests alone do not establish native device behavior.
 - **Unseen course guide:** no course-guide attachment or matching workspace file was available. Guide-specific assessment and student/instructor submission details remain pending.
 - **Published cloud snapshot restoration:** the setup scripts were exercised in this instance and saved. Restoration in a fresh task after publication has not been independently verified.

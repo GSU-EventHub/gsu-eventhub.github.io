@@ -4,7 +4,7 @@ This maps the user's project brief. The course guide could not be found in this 
 
 | Requirement | Implementation / evidence |
 | --- | --- |
-| Flutter/Dart web, stable 3.47.7 | `.flutter-version`, pinned cloud setup, pinned Actions; local version confirmed |
+| Flutter/Dart web and Android, stable 3.47.7 | `.flutter-version`, pinned cloud setup, pinned Actions; local version confirmed |
 | Personal planner, starts empty | Empty initial state; storage and browser tests; no production fixtures |
 | All event fields, optional organizer/description | Model, add/edit form, details |
 | Required fields, valid date/time, end after start | Form validation and model/storage tests; same-day events |
@@ -30,6 +30,10 @@ This maps the user's project brief. The course guide could not be found in this 
 | Format, analyze, tests, web build | Commands and outcomes recorded in `VERIFICATION.md` |
 | 150–200-word concept | `CONCEPT.md` |
 | Usage, cloud, deployment, downloads, storage docs | Root README and `WINDOWS.txt` |
+
+## Android addition
+
+Android is now included in the source through `android/`, sharing the existing Dart screens and models. `app_store.dart` selects browser storage or the native app-private file adapter. Four file-storage tests supplement the original 14 tests. `integration_test/android_app_test.dart` and the Android Actions job cover emulator behavior and the actual release APK before upload. The APK is development-signed; stable upgrade signing and Play Store delivery remain separate work. Android results must be recorded after the job completes; a configured job alone is not evidence of a pass.
 
 ## Submission evidence still needed
 

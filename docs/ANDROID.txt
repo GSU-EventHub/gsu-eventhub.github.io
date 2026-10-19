@@ -1,0 +1,25 @@
+GSU EventHub - Android application
+
+Download the Android-APK artifact from a successful GitHub Actions run.
+Extract the GitHub ZIP and copy GSU-EventHub-Android.apk to your Android phone.
+Open the APK and allow installation from that file source if Android asks.
+Your institution's device policy may restrict sideloading.
+No Flutter, Android Studio, account, or internet connection is needed to use it.
+Requires Android 7.0 (API 24) or newer. This is not an iPhone/iOS package.
+
+This is a native Flutter application, not a browser launcher or WebView wrapper.
+The same Dart models and screens are shared with the web version.
+Events stay in app-private on-device storage. The Android planner and website
+have separate data. Uninstalling or clearing the app's data removes its events.
+Automatic Android backup is disabled. There is no backup/export/sync service.
+
+Signing: this classroom/test APK uses the Android development certificate.
+CI runners may generate different development certificates between builds.
+If Android refuses an update because of a signature mismatch, uninstalling the
+previous APK permits installation but DELETES its events. Keep the current APK
+while you need its data. Stable upgrade signing and Play Store distribution are
+not configured. Never commit a private production signing key to this repository.
+
+The Actions job builds the APK, runs native storage/CRUD/navigation checks in an
+Android emulator, and installs/launches the actual release APK before uploading it.
+Physical-device testing still needs to be performed on your own Android phone.
