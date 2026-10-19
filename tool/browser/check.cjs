@@ -23,12 +23,22 @@ async function click(page, role, name) {
   await item.click();
   await sleep(200);
 }
-async function fill(page,name,value) {
+async function focusField(page,name) {
  const item=page.getByRole('textbox',{name,exact:true});
- await item.focus();await sleep(100);await item.fill(value);await sleep(100);
+ await item.focus();
+ // Flutter activates editing after its semantics update, not at DOM focus.
+ // The pinned engine applies input configuration when that activation finishes.
+ await eventually(()=>item.evaluate(e=>document.activeElement===e && e.getAttribute('autocorrect')==='on'),`Flutter did not activate ${name}`);
+ await sleep(200);
+ return item;
+}
+async function fill(page,name,value) {
+ const item=await focusField(page,name);
+ await item.fill(value);await sleep(200);
+ assert.equal(await item.inputValue(),value,`Input did not accept ${name}`);
 }
 async function fieldValue(page,name) {
- const input=page.getByRole('textbox',{name,exact:true});await input.focus();await sleep(150);return input.inputValue();
+ return (await focusField(page,name)).inputValue();
 }
 async function readEvents(page) {
  return page.evaluate(key=>JSON.parse(localStorage.getItem(key) || '{"events":[]}').events,storageKey);

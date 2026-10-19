@@ -24,7 +24,18 @@ The web build emitted a nonfatal framework icon-tree-shaking warning naming an u
 
 The current revision adds the approved green branding, locally drawn calendar/G logo, bundled Inter font, empty dashboard, and floating four-action navigation. The account-related phrase has been removed. Existing event storage and its key are preserved; the interface update does not clear saved events.
 
-The 14-test suite and release-build browser suite passed locally for this revision. Date/time pickers and filters now have browser routes. Back dismisses them before leaving the form or list, and the form draft and selected filters remain. Widget checks include 320-pixel portrait, phone landscape, desktop, text scaling to 1.3, and a simulated software-keyboard inset. No Flutter render overflow was detected.
+The 14-test suite and release-build browser suite passed locally for this revision. After correcting the browser helper to wait for Flutter semantics text-editing activation, two consecutive full browser-suite runs passed. A separate emulated mobile-touch check passed navigation, text entry, picker Back/draft preservation, and week view. Date/time pickers and filters now have browser routes. Back dismisses them before leaving the form or list, and the form draft and selected filters remain. Widget checks include 320-pixel portrait, phone landscape, desktop, text scaling to 1.3, and a simulated software-keyboard inset. No Flutter render overflow was detected.
+
+## Mobile revision deployment and Windows verification
+
+[GitHub Actions run 39273646977](https://github.com/GSU-EventHub/gsu-eventhub.github.io/actions/runs/39273646977), for application commit `b889cb8ee6e11e82e2279e346564b8d6a1f6b4f1`, completed successfully:
+
+- **verify:** formatting, analysis, all 14 tests, release build, browser behavior checks, and artifact uploads passed.
+- **pages:** the mobile redesign deployed to **https://gsu-eventhub.github.io/**.
+- **windows:** the extracted Windows x64 package's actual EXE, runtime assets, and browser suite passed on `windows-latest`.
+- **release:** skipped because this was a main-branch push, not a version tag.
+
+Verified HTTPS downloads of HTML, bootstrap, compiled main JavaScript, asset manifest, bundled Inter font, and CanvasKit WASM match the exact CI web artifact by SHA-256. TLS verification remained enabled. The UI source is unchanged by the follow-up browser-helper synchronization fix.
 
 ## Earlier production deployment and Windows verification
 
