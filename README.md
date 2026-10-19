@@ -1,5 +1,7 @@
 # GSU EventHub
 
+**Live app:** https://gsu-eventhub.github.io/ · [Successful deployment and Windows verification](https://github.com/GSU-EventHub/gsu-eventhub.github.io/actions/runs/39261626467)
+
 A personal campus event scheduler built with **Flutter 3.47.7 stable and Dart**, targeting the web. A second-year student's solo project, separate from iSkedyul.
 
 Plan seminars, workshops, sports, and club activities. **Interested, Going, and Attended are personal labels, not organizer registrations.** The planner starts empty. There are no accounts, backend services, external APIs, notifications, or paid services.

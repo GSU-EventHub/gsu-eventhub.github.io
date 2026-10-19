@@ -20,6 +20,19 @@ Verified in the Linux cloud workspace on **19 October 2026** using **Flutter 3.4
 
 The web build emitted a nonfatal framework icon-tree-shaking warning naming an unused Cupertino icon family. This app uses bundled Material icons; those icons and the app rendered during browser checks. The build completed successfully. Flutter's optional Wasm dry run also succeeded; the delivered app uses the standard JavaScript web release build.
 
+## Production deployment and Windows verification
+
+[GitHub Actions run 39261626467](https://github.com/GSU-EventHub/gsu-eventhub.github.io/actions/runs/39261626467), for application commit `fca60f884c47e62d799ebf1b764488771637b4ce`, completed successfully on 19 October 2026:
+
+- **verify:** pinned Flutter installation, formatting, analysis, all 11 tests, release build, Chromium browser suite, and artifact uploads passed on Ubuntu.
+- **pages:** deployed successfully to **https://gsu-eventhub.github.io/**. Pages is configured with GitHub Actions as its source.
+- **windows:** Go tests, x64 EXE compilation, ZIP extraction, actual EXE execution, runtime asset requests, and the Chromium suite passed on `windows-latest`.
+- **release:** correctly skipped for the main-branch push; no version tag or GitHub Release was published.
+
+The public HTTPS HTML, bootstrap JavaScript, compiled main JavaScript, asset manifest, bundled Roboto font, and CanvasKit WASM were fetched with TLS verification enabled. Their SHA-256 hashes match the files in the exact Windows-tested CI package. The local Windows download was replaced with that CI-tested ZIP.
+
+The integration could push the implementation but received HTTP 403 when changing Pages settings. The user changed the Pages source to GitHub Actions. A separate direct Chromium HTTPS check in the cloud could not proceed because its proxy CA was missing from Chromium's trust store. Automatic approval review rejected adding that CA because it would broaden persistent browser trust; no trust change or TLS-verification bypass was made. Public deployment was instead verified through HTTPS file/hash checks and the successful CI browser tests.
+
 ## What the tests exercise
 
 The seven storage/model tests cover an empty first load, save/reload, edits, deletion including the last event, combined search/category/status filters, chronological ordering, partially invalid records, duplicate IDs, invalid JSON/schema recovery, write failure without losing current state, date/time parsing, and invalid persisted durations.
@@ -32,8 +45,9 @@ Screenshots in [screenshots](screenshots/) show the seven requested screens plus
 
 ## Not verified here
 
-- **Windows execution:** this machine is Linux. The Windows EXE was cross-compiled but not executed here. The configured `windows-latest` job will extract the distributable ZIP, run that exact EXE, check bundled assets, and run the browser suite against its server. Release publication depends on that job succeeding. Windows default-browser opening is implemented using the operating system URL handler; automated tests suppress automatic opening and have not verified that interaction on the user's laptop.
-- **GitHub Actions, Pages, and Release:** workflows are implemented but have not run remotely in this task. No push, Pages deployment, or Release publication was performed. Pages must be configured to use GitHub Actions, then the branch pushed. Review successful runs before submitting downloads as tested Windows deliverables.
+- **Windows default-browser opening on the user's laptop:** actual Windows executable serving and browser tests passed in CI. Automated tests deliberately suppress automatic browser opening; the operating-system URL-handler interaction still needs a laptop check.
+- **GitHub Release:** delivery artifacts exist in the successful Actions run, but no version tag or Release was published.
+- **Direct interactive testing of the public HTTPS URL from this cloud browser:** blocked by the certificate-trust limitation described above. The live files match the Windows-tested build; no claim is made about an interactive public-URL browser run here.
 - **Physical devices and other browsers:** Chromium and simulated viewports were checked. Physical Android Back behavior, the user's Windows laptop, Safari, and Firefox have not been tested. Viewport tests do not establish native Android support; this is a web app.
 - **Unseen course guide:** no course-guide attachment or matching workspace file was available. Guide-specific assessment and student/instructor submission details remain pending.
 - **Published cloud snapshot restoration:** the setup scripts were exercised in this instance and saved. Restoration in a fresh task after publication has not been independently verified.
