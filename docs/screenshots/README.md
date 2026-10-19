@@ -1,6 +1,6 @@
 # Screen evidence
 
-Captured from the compiled web app in headless Chromium at 390×844, plus a desktop timetable at 1440×900. Event data is a screenshot fixture in an isolated browser context, not initial application data.
+Captured from the compiled web app in headless Chromium at 390×844, plus a desktop timetable and dashboard at 1440×900. Main screens show a new, empty planner. Only event-details and save-confirmation screenshots use a fixture in an isolated browser context. The application never inserts sample events.
 
 | Screen | Screenshot |
 | --- | --- |
@@ -12,5 +12,6 @@ Captured from the compiled web app in headless Chromium at 390×844, plus a desk
 | Add/Edit form (Add shown) | [06-form.png](06-form.png) |
 | Save confirmation | [07-saved.png](07-saved.png) |
 | Week timetable on desktop | [08-week-desktop.png](08-week-desktop.png) |
+| Empty dashboard on desktop | [09-dashboard-desktop.png](09-dashboard-desktop.png) |
 
 Use these as draft submission evidence. Confirm the course guide's screenshot and demonstration requirements before submitting.

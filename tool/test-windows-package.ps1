@@ -12,7 +12,7 @@ try {
         } catch { Start-Sleep -Milliseconds 500 }
     }
     if (-not $ready) { throw "Packaged server failed readiness check" }
-    foreach ($path in @("/", "/flutter_bootstrap.js", "/main.dart.js", "/assets/AssetManifest.bin", "/assets/assets/fonts/Roboto-Regular.ttf", "/canvaskit/canvaskit.wasm")) {
+    foreach ($path in @("/", "/flutter_bootstrap.js", "/main.dart.js", "/assets/AssetManifest.bin", "/assets/assets/fonts/Inter.ttf", "/canvaskit/canvaskit.wasm")) {
         $response = Invoke-WebRequest "http://127.0.0.1:47831$path" -UseBasicParsing
         if ($response.StatusCode -ne 200 -or $response.RawContentLength -eq 0) { throw "Asset check failed: $path" }
     }

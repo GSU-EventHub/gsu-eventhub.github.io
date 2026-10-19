@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'planner.dart';
+import 'branding.dart';
 import 'storage/browser_store.dart';
 import 'screens/home.dart';
 import 'screens/event_form.dart';
 import 'screens/event_details.dart';
 import 'screens/calendar.dart';
+import 'screens/pickers.dart';
 
 void main() => runApp(EventHub(planner: Planner(BrowserStore())));
 
@@ -48,6 +50,7 @@ class _EventHubState extends State<EventHub> {
       ),
       GoRoute(
         path: '/events/new',
+        routes: eventPickerRoutes(),
         builder: (c, s) => EventForm(
           planner: widget.planner,
           initialDate: DateTime.tryParse(s.uri.queryParameters['at'] ?? ''),
@@ -55,6 +58,7 @@ class _EventHubState extends State<EventHub> {
       ),
       GoRoute(
         path: '/events/:id/edit',
+        routes: eventPickerRoutes(),
         builder: (c, s) =>
             EventForm(planner: widget.planner, id: s.pathParameters['id']),
       ),
@@ -105,55 +109,6 @@ class _EventHubState extends State<EventHub> {
     title: 'GSU EventHub',
     debugShowCheckedModeBanner: false,
     routerConfig: router,
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: const ColorScheme.light(
-        primary: Color(0xff181818),
-        onPrimary: Colors.white,
-        primaryContainer: Color(0xffe5e5e5),
-        onPrimaryContainer: Colors.black,
-        secondary: Color(0xff555555),
-        onSecondary: Colors.white,
-        secondaryContainer: Color(0xffe5e5e5),
-        onSecondaryContainer: Colors.black,
-        tertiary: Color(0xff777777),
-        onTertiary: Colors.white,
-        error: Color(0xff333333),
-        onError: Colors.white,
-        errorContainer: Color(0xffeeeeee),
-        onErrorContainer: Colors.black,
-        surface: Colors.white,
-        onSurface: Color(0xff181818),
-        onSurfaceVariant: Color(0xff555555),
-        surfaceContainer: Color(0xfff2f2f2),
-        surfaceContainerHighest: Color(0xffeeeeee),
-        outline: Color(0xff888888),
-        outlineVariant: Color(0xffdddddd),
-      ),
-      scaffoldBackgroundColor: const Color(0xfff7f7f7),
-      fontFamily: 'Roboto',
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      cardTheme: CardThemeData(
-        elevation: 0,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xffdddddd)),
-        ),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
-        ),
-      ),
-    ),
+    theme: eventHubTheme(),
   );
 }

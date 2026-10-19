@@ -13,15 +13,15 @@ This maps the user's project brief. The course guide could not be found in this 
 | Chronological upcoming, separate past/attended | Dashboard and Events sections |
 | Browser persistence and invalid-data recovery | Versioned local storage adapter, visible warnings; tests include reload/edit/delete and malformed saved data |
 | Intentional deletion survives refresh | Empty list explicitly persisted; tested in Chromium |
-| Black/white/grayscale, cards, icons, bundled fonts | Material theme, bundled Roboto and Material icons; no external requests in browser checks |
+| Approved green mobile design, cards, icons, bundled fonts | Green Material theme, custom logo, bundled Inter and Material icons; no external requests in browser checks |
 | Portrait, landscape, desktop | Widget and browser checks at 320×640, 844×390, 1440×900 |
-| Floating Add Event on main screens | Dashboard, Events, Calendar, expanded timetable |
+| Floating Add Event on main screens | Floating Add event action in the main bottom navigation; expanded timetable has its own floating Add event button |
 | Calendar Day/Week/Month, Mon/Tue labels, AM/PM | Calendar controls, labeled timetable, chronological time placement |
 | Date/range centered between arrows, compact Today | Calendar header and responsive toolbar |
 | Duration/overlap placement, horizontal week scrolling | Wall-clock timetable positions and greedy overlap lanes; horizontally scrollable week |
 | Expanded timetable and date/time prefill | Expanded calendar route and tappable hour slots |
 | Calendar navigation state | Planner retains selected date, mode, month/timetable vertical and week horizontal offsets |
-| Browser Back/Forward including deletion dialog | URL-reflected `go_router` routes; browser tests; form choices are inline chips, so there are no popup menus |
+| Browser Back/Forward including pickers, filters, deletion dialog | URL-reflected `go_router` routes; browser tests; category/status choices are inline chips |
 | Normal browser navigation at app root | Tested with a preceding browser page; no global Back interception |
 | Pages on main, `/` base path | Deployed successfully to https://gsu-eventhub.github.io/ by [Actions run 39261626467](https://github.com/GSU-EventHub/gsu-eventhub.github.io/actions/runs/39261626467); Pages source is GitHub Actions |
 | Compiled web artifact, Windows x64 ZIP | Delivery workflow and local compiled outputs |

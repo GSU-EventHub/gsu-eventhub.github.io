@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../branding.dart';
 import '../models/event.dart';
 import '../planner.dart';
 
@@ -30,10 +31,12 @@ class AppFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
-      ),
+      automaticallyImplyLeading: false,
+      title: selected != null
+          ? AppBrand(
+              subtitle: selected == 2 ? 'Calendar' : 'Campus event planner',
+            )
+          : Text(title),
       leading: selected == null
           ? IconButton(
               tooltip: 'Back',
@@ -50,72 +53,203 @@ class AppFrame extends StatelessWidget {
       actions: actions,
     ),
     body: SafeArea(
-      child: Column(
-        children: [
-          ListenableBuilder(
-            listenable: planner,
-            builder: (c, _) => planner.warning == null
-                ? const SizedBox.shrink()
-                : Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    color: const Color(0xffe8e8e8),
-                    child: Text(
-                      planner.warning!,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
+      bottom: false,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1120),
+          child: Column(
+            children: [
+              ListenableBuilder(
+                listenable: planner,
+                builder: (c, _) => planner.warning == null
+                    ? const SizedBox.shrink()
+                    : Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        color: HubColors.pale,
+                        child: Text(
+                          planner.warning!,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+              ),
+              Expanded(child: child),
+            ],
           ),
-          Expanded(child: child),
-        ],
+        ),
       ),
     ),
-    floatingActionButton: add
-        ? FloatingActionButton.extended(
-            onPressed: () => context.push(addLocation ?? '/events/new'),
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            icon: const Icon(Icons.add),
-            label: const Text('Add Event'),
-          )
-        : null,
     bottomNavigationBar: selected == null
         ? null
-        : NavigationBar(
-            selectedIndex: selected!,
-            onDestinationSelected: (i) =>
-                context.go(['/dashboard', '/events', '/calendar'][i]),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.space_dashboard_outlined),
-                selectedIcon: Icon(Icons.space_dashboard),
-                label: 'Home',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.event_note_outlined),
-                selectedIcon: Icon(Icons.event_note),
-                label: 'Events',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.calendar_month_outlined),
-                selectedIcon: Icon(Icons.calendar_month),
-                label: 'Calendar',
+        : PlannerNavigation(
+            selected: selected!,
+            addLocation: addLocation ?? '/events/new',
+          ),
+    // Expanded timetable has no navigation bar, but retains the calendar's Add action.
+    floatingActionButton: selected == null && add
+        ? FloatingActionButton.extended(
+            onPressed: () => context.push(addLocation ?? '/events/new'),
+            backgroundColor: HubColors.green,
+            foregroundColor: Colors.white,
+            icon: const Icon(Icons.add),
+            label: const Text('Add event'),
+          )
+        : null,
+  );
+}
+
+class PlannerNavigation extends StatelessWidget {
+  final int selected;
+  final String addLocation;
+  const PlannerNavigation({
+    super.key,
+    required this.selected,
+    required this.addLocation,
+  });
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    top: false,
+    minimum: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+    child: Align(
+      heightFactor: 1,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: HubColors.line),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0c213830),
+                blurRadius: 22,
+                offset: Offset(0, 6),
               ),
             ],
           ),
+          child: Padding(
+            padding: const EdgeInsets.all(7),
+            child: LayoutBuilder(
+              builder: (c, box) => Row(
+                children: [
+                  for (var i = 0; i < 4; i++)
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(right: i < 3 ? 4 : 0),
+                        child: _destination(
+                          context,
+                          i,
+                          horizontal: box.maxWidth > 460,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
   );
+  Widget _destination(BuildContext context, int i, {required bool horizontal}) {
+    const labels = ['Home', 'Events', 'Calendar', 'Add event'];
+    const icons = [
+      Icons.space_dashboard_outlined,
+      Icons.event_note_outlined,
+      Icons.calendar_month_outlined,
+      Icons.add,
+    ];
+    final active = i == selected, isAdd = i == 3;
+    final color = isAdd
+        ? Colors.white
+        : active
+        ? HubColors.green
+        : HubColors.muted;
+    final pieces = [
+      Icon(icons[i], size: 22, color: color),
+      SizedBox(width: horizontal ? 7 : 0, height: horizontal ? 0 : 5),
+      FlexibleText(label: labels[i], color: color, horizontal: horizontal),
+    ];
+    return Semantics(
+      selected: active,
+      child: TextButton(
+        key: ValueKey('nav-${labels[i]}'),
+        onPressed: () {
+          if (isAdd) {
+            context.push(addLocation);
+          } else if (i != selected) {
+            context.go(['/dashboard', '/events', '/calendar'][i]);
+          }
+        },
+        style: TextButton.styleFrom(
+          minimumSize: const Size(48, 60),
+          padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 9),
+          backgroundColor: isAdd
+              ? HubColors.green
+              : active
+              ? HubColors.pale
+              : Colors.transparent,
+          foregroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: horizontal
+            ? Row(mainAxisAlignment: MainAxisAlignment.center, children: pieces)
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: pieces,
+              ),
+      ),
+    );
+  }
+}
+
+class FlexibleText extends StatelessWidget {
+  final String label;
+  final Color color;
+  final bool horizontal;
+  const FlexibleText({
+    super.key,
+    required this.label,
+    required this.color,
+    required this.horizontal,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final text = Text(
+      label,
+      maxLines: 2,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: horizontal ? 12 : 11,
+        fontWeight: FontWeight.w500,
+        color: color,
+      ),
+    );
+    return horizontal ? Flexible(child: text) : text;
+  }
 }
 
 class Content extends StatelessWidget {
   final Widget child;
-  const Content({super.key, required this.child});
+  final double maxWidth;
+  const Content({super.key, required this.child, this.maxWidth = 1120});
   @override
   Widget build(BuildContext context) => Align(
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 1000),
+      constraints: BoxConstraints(maxWidth: maxWidth),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 110),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.fromLTRB(
+          MediaQuery.sizeOf(context).width < 600 ? 20 : 28,
+          28,
+          MediaQuery.sizeOf(context).width < 600 ? 20 : 28,
+          32,
+        ),
         child: child,
       ),
     ),
@@ -125,29 +259,77 @@ class Content extends StatelessWidget {
 class EmptyState extends StatelessWidget {
   final String title, message;
   final IconData icon;
+  final VoidCallback? onAdd;
   const EmptyState({
     super.key,
     required this.title,
     required this.message,
-    this.icon = Icons.event_available,
+    this.icon = Icons.calendar_today_outlined,
+    this.onAdd,
   });
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 32),
-    child: Column(
+    padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: const Color(0xfff8faf5),
+              border: Border.all(color: HubColors.line),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 24, color: const Color(0xff7d947f)),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 9),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: HubColors.muted, fontSize: 13),
+          ),
+          if (onAdd != null) ...[
+            const SizedBox(height: 22),
+            FilledButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add an event'),
+            ),
+          ],
+        ],
+      ),
+    ),
+  );
+}
+
+class StatusBadge extends StatelessWidget {
+  final String status;
+  const StatusBadge({super.key, required this.status});
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+    decoration: BoxDecoration(
+      color: status == 'Attended' ? const Color(0xffeeeff3) : HubColors.pale,
+      borderRadius: BorderRadius.circular(6),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 44, color: Colors.grey.shade600),
-        const SizedBox(height: 16),
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          message,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Color(0xff555555)),
+        Icon(statusIcon(status), size: 15, color: HubColors.green),
+        const SizedBox(width: 5),
+        Flexible(
+          child: Text(
+            status,
+            style: const TextStyle(fontSize: 12, color: HubColors.green),
+          ),
         ),
       ],
     ),
@@ -161,19 +343,20 @@ class EventCard extends StatelessWidget {
   Widget build(BuildContext context) => Card(
     margin: const EdgeInsets.only(bottom: 12),
     child: InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(15),
       onTap: () => context.push('/events/${event.id}'),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(17),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 48,
+              width: 43,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xfff2f2f2),
-                borderRadius: BorderRadius.circular(10),
+                color: const Color(0xfff3f6ef),
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(color: HubColors.line),
               ),
               child: Column(
                 children: [
@@ -181,22 +364,19 @@ class EventCard extends StatelessWidget {
                     monthNames[event.start.month - 1]
                         .substring(0, 3)
                         .toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 9, color: HubColors.muted),
                   ),
                   Text(
                     '${event.start.day}',
                     style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 21,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 13),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,45 +384,46 @@ class EventCard extends StatelessWidget {
                   Text(
                     event.title,
                     style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text('${timeLabel(event.start)} – ${timeLabel(event.end)}'),
+                  Text(
+                    '${timeLabel(event.start)} – ${timeLabel(event.end)}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: HubColors.muted,
+                    ),
+                  ),
                   Text(
                     event.venue,
-                    style: const TextStyle(color: Color(0xff555555)),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: HubColors.muted,
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 11),
                   Wrap(
                     spacing: 12,
-                    runSpacing: 6,
+                    runSpacing: 7,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
                         event.category,
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: HubColors.muted,
+                        ),
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(statusIcon(event.status), size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            event.status,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
+                      StatusBadge(status: event.status),
                     ],
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, size: 18, color: HubColors.muted),
           ],
         ),
       ),
@@ -251,11 +432,6 @@ class EventCard extends StatelessWidget {
 }
 
 Widget sectionTitle(BuildContext context, String title) => Padding(
-  padding: const EdgeInsets.only(top: 24, bottom: 12),
-  child: Text(
-    title,
-    style: Theme.of(
-      context,
-    ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-  ),
+  padding: const EdgeInsets.only(top: 23, bottom: 12),
+  child: Text(title, style: Theme.of(context).textTheme.titleMedium),
 );

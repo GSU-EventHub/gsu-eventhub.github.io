@@ -8,13 +8,21 @@ Plan seminars, workshops, sports, and club activities. **Interested, Going, and 
 
 ## Use the planner
 
-1. Open the app and select **Open my planner**.
-2. Tap **Add Event**. Enter a title, date (`YYYY-MM-DD`), start/end times (for example `9:00 AM` and `10:30 AM`), venue, category, and personal status. Organizer and plain-text description are optional. Events start and finish on the same day; end time must follow start time.
+1. Open the app and select **Open planner**.
+2. Tap **Add event**. Enter a title, date and start/end times using the picker buttons (keyboard entry is also supported: `YYYY-MM-DD`, `9:00 AM`), venue, category, and personal status. Organizer and plain-text description are optional. Events start and finish on the same day; end time must follow start time.
 3. Save, then open the event details to edit or delete it. Deletion requires confirmation.
-4. Search event titles or venues in **Events** and combine category/status filters. Upcoming events are chronological; past and attended events have their own sections.
+4. Search event titles or venues in **Events**, open **Filters**, and combine category/status choices. Upcoming events are chronological; use the Past and Attended section chips for those events.
 5. Use **Calendar** for Month, Week, or Day views. Select a day, tap an hour to prefill a new event, use the arrows or Today, and expand the timetable when needed. Weeks scroll horizontally on narrow screens. Calendar selection and scroll positions survive navigation within the running app.
 
-Browser Back/Forward follows screens, forms, expanded calendar, and the deletion confirmation. Forms use inline choices rather than popup menus. Leaving an unsaved form discards its changes. At the app root, Back remains normal browser navigation. Routes use `/#/...`, which also works on refresh and GitHub Pages without server rewrite rules. This is a web application, including when used in an Android browser.
+Browser Back/Forward follows screens, forms, date/time pickers, filters, expanded calendar, and the deletion confirmation. Forms use inline choices rather than popup menus. Leaving an unsaved form discards its changes. At the app root, Back remains normal browser navigation. Routes use `/#/...`, which also works on refresh and GitHub Pages without server rewrite rules. This is a web application, including when used in an Android browser.
+
+## Mobile interface
+
+The app is built with Flutter and Dart for **web browsers**. It is not an Android APK or a native Android application. Open the hosted site in a phone browser; no Flutter installation is needed on the device.
+
+The interface uses the approved restrained green design, custom GSU EventHub calendar/G logo, bundled Inter typography, and a floating four-action bottom navigation. Navigation and picker buttons have 48-pixel minimum targets. Safe-area padding keeps controls clear of phone home indicators. Forms scroll with the keyboard, and calendar weeks scroll horizontally on narrow devices. Larger text and portrait/landscape layouts are covered by widget tests.
+
+New planners start empty. This styling update preserves the local-storage key and previously saved events; it does not insert example records or clear user data.
 
 ## Cloud development
 
@@ -52,7 +60,7 @@ In this repository's **Settings → Pages**, select **GitHub Actions** as the bu
 
 Every successful delivery run uploads a **compiled-web** artifact and a **Windows-x64-tested-package** artifact. Actions artifacts download inside GitHub's outer ZIP; extract that first. The Windows job compiles a standalone x64 EXE, packages all web/runtime/font assets, extracts the ZIP, executes that extracted EXE on `windows-latest`, fetches runtime assets, and runs browser checks against its local server.
 
-To create a public release, a maintainer pushes a `v*` tag (for example `v1.0.0`) after reviewing the changes. The release job waits for both the web verification and Windows tests. Only then does it publish **GSU-EventHub-Web.zip** and **GSU-EventHub-Windows-x64.zip** as release assets. This repository change does not itself push, deploy, or publish a release.
+To create a public release, a maintainer pushes a `v*` tag (for example `v1.0.0`) after reviewing the changes. The release job waits for both the web verification and Windows tests. Only then does it publish **GSU-EventHub-Web.zip** and **GSU-EventHub-Windows-x64.zip** as release assets. Pushes to main deploy the site and provide tested Actions downloads. A GitHub Release requires a separate version tag.
 
 ### Windows x64 launch
 
@@ -74,11 +82,11 @@ Invalid saved records are skipped with a visible warning; valid records remain u
 - `lib/storage/`: a tiny storage interface and browser adapter; an in-memory adapter supports tests.
 - `lib/planner.dart`: built-in `ChangeNotifier` state, persistence, ordering, filters, calendar state.
 - `lib/screens/`: welcome/dashboard/list, calendar, form, details, and confirmation screens.
-- `lib/main.dart`: grayscale Material theme and `go_router` browser routes.
+- `lib/main.dart`: `go_router` browser routes. The green Material theme, bundled font, and custom logo live in `lib/branding.dart`.
 - `test/`, `tool/browser/`: model/storage/widget and compiled-browser checks.
 - `windows_launcher/`: small Go static-file launcher; Go's standard library only.
 
-Runtime Dart dependencies are `go_router` for browser history and `web` for local storage. Roboto and Material icons are bundled, with font licensing included. No external font service is used. Characters outside the bundled font's glyph set may display as missing glyphs; remote font fallback is disabled.
+Runtime Dart dependencies are `go_router` for browser history and `web` for local storage. Inter and Material icons are bundled, with font licensing included. No external font service is used. Characters outside the bundled font's glyph set may display as missing glyphs; remote font fallback is disabled.
 
 ## Verification and course submission
 

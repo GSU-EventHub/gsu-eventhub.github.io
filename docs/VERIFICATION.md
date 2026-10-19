@@ -5,9 +5,9 @@ Verified in the Linux cloud workspace on **19 October 2026** using **Flutter 3.4
 | Check | Outcome |
 | --- | --- |
 | `bash tool/setup-cloud.sh` | Passed, including a repeat run with the pinned SDK and locked dependencies |
-| `dart format --output=none --set-exit-if-changed lib test` | Passed; 14 files, no changes |
+| `dart format --output=none --set-exit-if-changed lib test` | Passed; no changes |
 | `flutter analyze --no-pub` | Passed; no issues |
-| `flutter test --no-pub` | **11 tests passed**, no skipped tests |
+| `flutter test --no-pub` | **14 tests passed**, no skipped tests |
 | `flutter build web --release --no-pub --base-href / --no-web-resources-cdn` | Passed; compiled files in `build/web` |
 | `CHROMIUM_PATH=/usr/bin/chromium node tool/browser/check.cjs` | Passed against the final compiled web build |
 | Flutter development-server startup | Passed; actual debug app loaded in Chromium and navigated Welcome → empty dashboard |
@@ -20,7 +20,13 @@ Verified in the Linux cloud workspace on **19 October 2026** using **Flutter 3.4
 
 The web build emitted a nonfatal framework icon-tree-shaking warning naming an unused Cupertino icon family. This app uses bundled Material icons; those icons and the app rendered during browser checks. The build completed successfully. Flutter's optional Wasm dry run also succeeded; the delivered app uses the standard JavaScript web release build.
 
-## Production deployment and Windows verification
+## Mobile interface revision
+
+The current revision adds the approved green branding, locally drawn calendar/G logo, bundled Inter font, empty dashboard, and floating four-action navigation. The account-related phrase has been removed. Existing event storage and its key are preserved; the interface update does not clear saved events.
+
+The 14-test suite and release-build browser suite passed locally for this revision. Date/time pickers and filters now have browser routes. Back dismisses them before leaving the form or list, and the form draft and selected filters remain. Widget checks include 320-pixel portrait, phone landscape, desktop, text scaling to 1.3, and a simulated software-keyboard inset. No Flutter render overflow was detected.
+
+## Earlier production deployment and Windows verification
 
 [GitHub Actions run 39261626467](https://github.com/GSU-EventHub/gsu-eventhub.github.io/actions/runs/39261626467), for application commit `fca60f884c47e62d799ebf1b764488771637b4ce`, completed successfully on 19 October 2026:
 
@@ -37,11 +43,11 @@ The integration could push the implementation but received HTTP 403 when changin
 
 The seven storage/model tests cover an empty first load, save/reload, edits, deletion including the last event, combined search/category/status filters, chronological ordering, partially invalid records, duplicate IDs, invalid JSON/schema recovery, write failure without losing current state, date/time parsing, and invalid persisted durations.
 
-The four widget tests cover the full welcome/dashboard/create/validate/save/details/edit/delete-confirm/cancel/delete flow; required-field and end-time errors; portrait, landscape, and desktop layouts; calendar selection across navigation; precise timetable start positions, duration heights, overlap lanes, and selecting an hour to prefill date/start/end.
+The seven widget tests cover the full welcome/dashboard/create/validate/save/details/edit/delete-confirm/cancel/delete flow; required-field and end-time errors; portrait, landscape, and desktop layouts; calendar selection across navigation; precise timetable start positions, duration heights, overlap lanes, and selecting an hour to prefill date/start/end; empty initial screens; minimum 48-pixel navigation targets; date-picker selection and draft preservation; filter Back behavior; larger text; and a software-keyboard inset.
 
-The compiled-app Chromium checks use an isolated browser context. They exercise root Back to a preceding page; Back/Forward from a form; URL changes; save across a full refresh; edit and status persistence; Back/Forward and cancellation of deletion confirmation; actual deletion followed by refresh; combined search/category/status filters; calendar date/view and horizontal/vertical scroll restoration; expanded timetable Back; invalid local-storage recovery; and page loading at 320×640, 844×390, and 1440×900. No JavaScript runtime errors or external resource requests occurred during that suite. Responsive widget checks also detect Flutter render overflow, which a DOM-only width check would miss.
+The compiled-app Chromium checks use an isolated browser context. They exercise root Back to a preceding page; Back/Forward from a form and its date/time pickers; draft preservation; filter-panel Back; URL changes; save across a full refresh; edit and status persistence; Back/Forward and cancellation of deletion confirmation; actual deletion followed by refresh; combined search/category/status filters; calendar date/view and horizontal/vertical scroll restoration; expanded timetable Back; invalid local-storage recovery; and page loading at 320×640, 844×390, and 1440×900. No JavaScript runtime errors or external resource requests occurred during that suite. Responsive widget checks also detect Flutter render overflow, which a DOM-only width check would miss.
 
-Screenshots in [screenshots](screenshots/) show the seven requested screens plus a desktop week timetable. They use isolated screenshot fixtures; the production app never seeds these records.
+Screenshots in [screenshots](screenshots/) show the seven requested screens, an empty desktop dashboard, and a desktop week timetable. Main screens are empty. Only event-details and save-confirmation images use isolated fixtures; the production app never seeds these records.
 
 ## Not verified here
 

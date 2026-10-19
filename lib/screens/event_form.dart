@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/event.dart';
 import '../planner.dart';
+
 import 'common.dart';
 
 class EventForm extends StatefulWidget {
@@ -62,9 +63,10 @@ class _EventFormState extends State<EventForm> {
       (v ?? '').trim().isEmpty ? 'This field is required.' : null;
   @override
   Widget build(BuildContext context) => AppFrame(
-    title: widget.id == null ? 'Add Event' : 'Edit Event',
+    title: widget.id == null ? 'Add event' : 'Edit event',
     planner: widget.planner,
     child: Content(
+      maxWidth: 740,
       child: widget.id != null && original == null
           ? const EmptyState(
               title: 'Event not found',
@@ -76,11 +78,9 @@ class _EventFormState extends State<EventForm> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.id == null
-                        ? 'Plan something worth showing up for.'
-                        : 'Update your plan.',
+                    'Event details',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -98,10 +98,14 @@ class _EventFormState extends State<EventForm> {
                     validator: (v) => parseDate(v?.trim() ?? '') == null
                         ? 'Enter a valid date: YYYY-MM-DD (1900–2200).'
                         : null,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Date',
                       helperText: 'YYYY-MM-DD',
-                      prefixIcon: Icon(Icons.calendar_today),
+                      suffixIcon: IconButton(
+                        tooltip: 'Choose date',
+                        icon: const Icon(Icons.calendar_today_outlined),
+                        onPressed: chooseDate,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -113,9 +117,14 @@ class _EventFormState extends State<EventForm> {
                           validator: (v) => parseTime(v ?? '') == null
                               ? 'Use a time such as 9:00 AM.'
                               : null,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Start time',
-                            helperText: 'Example: 9:00 AM',
+                            helperText: 'AM/PM',
+                            suffixIcon: IconButton(
+                              tooltip: 'Choose start time',
+                              icon: const Icon(Icons.schedule),
+                              onPressed: () => chooseTime(start, 'start-time'),
+                            ),
                           ),
                         ),
                         TextFormField(
@@ -130,9 +139,14 @@ class _EventFormState extends State<EventForm> {
                                 ? 'End must be after start.'
                                 : null;
                           },
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'End time',
                             helperText: 'Same day, AM/PM',
+                            suffixIcon: IconButton(
+                              tooltip: 'Choose end time',
+                              icon: const Icon(Icons.schedule),
+                              onPressed: () => chooseTime(end, 'end-time'),
+                            ),
                           ),
                         ),
                       ];
@@ -179,9 +193,7 @@ class _EventFormState extends State<EventForm> {
                         .toList(),
                   ),
                   sectionTitle(context, 'Personal status'),
-                  const Text(
-                    'For your own planning. This does not register you with an organizer.',
-                  ),
+                  const Text('This doesn’t register you with an organizer.'),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
@@ -223,7 +235,7 @@ class _EventFormState extends State<EventForm> {
                       FilledButton.icon(
                         onPressed: save,
                         icon: const Icon(Icons.check),
-                        label: const Text('Save Event'),
+                        label: const Text('Save event'),
                       ),
                       OutlinedButton(
                         onPressed: () {
@@ -242,8 +254,40 @@ class _EventFormState extends State<EventForm> {
             ),
     ),
   );
+  String get pickerBase =>
+      widget.id == null ? '/events/new' : '/events/${widget.id}/edit';
+  Future<void> chooseDate() async {
+    FocusScope.of(context).unfocus();
+    final value = parseDate(date.text.trim()) ?? DateTime.now();
+    final selected = await context.push<DateTime>(
+      '$pickerBase/date?value=${dateInput(value)}',
+    );
+    if (mounted && selected != null) {
+      setState(() => date.text = dateInput(selected));
+    }
+  }
+
+  Future<void> chooseTime(
+    TextEditingController controller,
+    String picker,
+  ) async {
+    FocusScope.of(context).unfocus();
+    final value = parseTime(controller.text) ?? 540;
+    final selected = await context.push<TimeOfDay>(
+      '$pickerBase/$picker?value=$value',
+    );
+    if (mounted && selected != null) {
+      setState(
+        () => controller.text = timeLabel(
+          DateTime(2000, 1, 1, selected.hour, selected.minute),
+        ),
+      );
+    }
+  }
+
   void save() {
     if (!form.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
     final d = parseDate(date.text.trim())!;
     final a = parseTime(start.text)!;
     final b = parseTime(end.text)!;

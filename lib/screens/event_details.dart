@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../planner.dart';
+import '../branding.dart';
 import '../models/event.dart';
 import 'common.dart';
 
@@ -30,14 +31,14 @@ class EventDetails extends StatelessWidget {
                       style: const TextStyle(
                         letterSpacing: 2,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xff555555),
+                        color: HubColors.muted,
                       ),
                     ),
                     const SizedBox(height: 12),
                     SelectableText(
                       e.title,
                       style: Theme.of(context).textTheme.headlineLarge
-                          ?.copyWith(fontWeight: FontWeight.w700),
+                          ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 24),
                     _line(Icons.calendar_today, dateLabel(e.start)),
@@ -59,7 +60,7 @@ class EventDetails extends StatelessWidget {
                     const SizedBox(height: 28),
                     const Text(
                       'This is your personal plan. No registration is sent to an organizer.',
-                      style: TextStyle(color: Color(0xff555555)),
+                      style: TextStyle(color: HubColors.muted),
                     ),
                     const SizedBox(height: 28),
                     Wrap(
@@ -69,12 +70,12 @@ class EventDetails extends StatelessWidget {
                         FilledButton.icon(
                           onPressed: () => context.push('/events/$id/edit'),
                           icon: const Icon(Icons.edit_outlined),
-                          label: const Text('Edit Event'),
+                          label: const Text('Edit event'),
                         ),
                         OutlinedButton.icon(
                           onPressed: () => context.push('/events/$id/delete'),
                           icon: const Icon(Icons.delete_outline),
-                          label: const Text('Delete Event'),
+                          label: const Text('Delete event'),
                         ),
                       ],
                     ),
@@ -121,7 +122,7 @@ class DeleteEvent extends StatelessWidget {
                   context.go('/events/$id');
                 }
               },
-              child: const Text('Keep Event'),
+              child: const Text('Keep event'),
             ),
             FilledButton(
               onPressed: () {
@@ -156,12 +157,16 @@ class SaveConfirmation extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 48),
-          const Icon(Icons.check_circle_outline, size: 64),
+          const Icon(
+            Icons.check_circle_outline,
+            size: 56,
+            color: HubColors.green,
+          ),
           const SizedBox(height: 24),
           Text(
             planner.find(id) == null
                 ? 'Event no longer available'
-                : 'Your plan is saved.',
+                : 'Event saved',
             style: Theme.of(context).textTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
@@ -173,7 +178,7 @@ class SaveConfirmation extends StatelessWidget {
           const SizedBox(height: 28),
           FilledButton(
             onPressed: () => context.replace('/events/$id'),
-            child: const Text('View Event'),
+            child: const Text('View event'),
           ),
           const SizedBox(height: 12),
           TextButton(

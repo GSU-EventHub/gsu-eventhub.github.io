@@ -15,6 +15,19 @@ class Planner extends ChangeNotifier {
       calendarHorizontal = 0,
       calendarMonthScroll = 0;
   String query = '', category = 'All', status = 'All';
+  String eventSection = 'Upcoming';
+  void updateFilters({String? search, String? category, String? status}) {
+    if (search != null) query = search;
+    if (category != null) this.category = category;
+    if (status != null) this.status = status;
+    notifyListeners();
+  }
+
+  void selectSection(String value) {
+    eventSection = value;
+    notifyListeners();
+  }
+
   Planner(this.storage) {
     load();
   }

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../planner.dart';
+import '../branding.dart';
 import '../models/event.dart';
 import 'common.dart';
 
@@ -178,7 +179,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ..sort((a, b) => a.start.compareTo(b.start));
     return SingleChildScrollView(
       controller: monthScroll,
-      padding: const EdgeInsets.only(bottom: 100),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -223,9 +224,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         height: 66,
                         margin: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          color: active ? Colors.black : Colors.white,
+                          color: active ? HubColors.green : Colors.white,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xffdddddd)),
+                          border: Border.all(color: HubColors.line),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -452,7 +453,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                             i * dayWidth +
                                             lanes[e.id]! * eventWidth +
                                             3,
-                                        width: eventWidth - 2,
+                                        width: max(1.0, eventWidth - 2),
                                         height: height,
                                         child: Semantics(
                                           label:
@@ -463,8 +464,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                                 '${e.title}\n${timeLabel(e.start)} – ${timeLabel(e.end)}\n${e.status}',
                                             child: Material(
                                               color: e.status == 'Attended'
-                                                  ? const Color(0xffdedede)
-                                                  : const Color(0xff242424),
+                                                  ? const Color(0xffeeeff3)
+                                                  : HubColors.green,
                                               borderRadius:
                                                   BorderRadius.circular(6),
                                               clipBehavior: Clip.antiAlias,
@@ -507,7 +508,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 85),
+          const SizedBox(height: 16),
         ],
       );
     },

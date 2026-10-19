@@ -16,16 +16,16 @@ void main() {
       final p = Planner(BrowserStore());
       await t.pumpWidget(EventHub(planner: p));
       await t.pumpAndSettle();
-      await t.tap(find.text('Open my planner'));
+      await t.tap(find.text('Open planner'));
       await t.pumpAndSettle();
-      expect(find.text('Your next event starts here'), findsOneWidget);
-      await t.tap(find.text('Add Event'));
+      expect(find.text('No events yet'), findsOneWidget);
+      await t.tap(find.text('Add event'));
       await t.pumpAndSettle();
       FocusManager.instance.primaryFocus?.unfocus();
       await t.pumpAndSettle();
-      await t.ensureVisible(find.text('Save Event'));
+      await t.ensureVisible(find.text('Save event'));
       await t.pumpAndSettle();
-      await t.tap(find.text('Save Event'));
+      await t.tap(find.text('Save event'));
       await t.pumpAndSettle();
       expect(p.events, isEmpty);
       expect(find.text('This field is required.'), findsNWidgets(2));
@@ -48,9 +48,9 @@ void main() {
       );
       FocusManager.instance.primaryFocus?.unfocus();
       await t.pumpAndSettle();
-      await t.ensureVisible(find.text('Save Event'));
+      await t.ensureVisible(find.text('Save event'));
       await t.pumpAndSettle();
-      await t.tap(find.text('Save Event'));
+      await t.tap(find.text('Save event'));
       await t.pumpAndSettle();
       expect(find.text('End must be after start.'), findsOneWidget);
       expect(p.events, isEmpty);
@@ -60,19 +60,19 @@ void main() {
       );
       FocusManager.instance.primaryFocus?.unfocus();
       await t.pumpAndSettle();
-      await t.ensureVisible(find.text('Save Event'));
+      await t.ensureVisible(find.text('Save event'));
       await t.pumpAndSettle();
-      await t.tap(find.text('Save Event'));
+      await t.tap(find.text('Save event'));
       await t.pumpAndSettle();
-      expect(find.text('Your plan is saved.'), findsOneWidget);
+      expect(find.text('Event saved'), findsOneWidget);
       expect(p.events.single.title, 'Campus workshop');
-      await t.tap(find.text('View Event'));
+      await t.tap(find.text('View event'));
       await t.pumpAndSettle();
       FocusManager.instance.primaryFocus?.unfocus();
       await t.pumpAndSettle();
-      await t.ensureVisible(find.text('Edit Event'));
+      await t.ensureVisible(find.text('Edit event'));
       await t.pumpAndSettle();
-      await t.tap(find.text('Edit Event'));
+      await t.tap(find.text('Edit event'));
       await t.pumpAndSettle();
       await t.enterText(
         find.widgetWithText(TextFormField, 'Title'),
@@ -80,24 +80,24 @@ void main() {
       );
       FocusManager.instance.primaryFocus?.unfocus();
       await t.pumpAndSettle();
-      await t.ensureVisible(find.text('Save Event'));
+      await t.ensureVisible(find.text('Save event'));
       await t.pumpAndSettle();
-      await t.tap(find.text('Save Event'));
+      await t.tap(find.text('Save event'));
       await t.pumpAndSettle();
-      await t.tap(find.text('View Event'));
+      await t.tap(find.text('View event'));
       await t.pumpAndSettle();
       expect(find.text('Revised workshop'), findsOneWidget);
       FocusManager.instance.primaryFocus?.unfocus();
       await t.pumpAndSettle();
-      await t.ensureVisible(find.text('Delete Event'));
+      await t.ensureVisible(find.text('Delete event'));
       await t.pumpAndSettle();
-      await t.tap(find.text('Delete Event'));
+      await t.tap(find.text('Delete event'));
       await t.pumpAndSettle();
       expect(find.text('Delete this event?'), findsOneWidget);
-      await t.tap(find.text('Keep Event'));
+      await t.tap(find.text('Keep event'));
       await t.pumpAndSettle();
       expect(p.events, hasLength(1));
-      await t.tap(find.text('Delete Event'));
+      await t.tap(find.text('Delete event'));
       await t.pumpAndSettle();
       await t.tap(find.text('Delete'));
       await t.pumpAndSettle();
@@ -122,6 +122,10 @@ void main() {
         '/calendar?expanded=1',
         '/events/new',
         '/events/one',
+        '/',
+        '/events?filters=1',
+        '/events/new/date?value=2030-05-10',
+        '/events/new/start-time?value=540',
       ]) {
         await t.pumpWidget(
           EventHub(key: UniqueKey(), planner: p, initialLocation: route),
@@ -144,7 +148,7 @@ void main() {
       final date = p.selectedDate;
       final calendar = find.byType(CalendarScreen);
       expect(calendar, findsOneWidget);
-      await t.tap(find.text('Add Event'));
+      await t.tap(find.text('Add event'));
       await t.pumpAndSettle();
       expect(find.byType(EventForm), findsOneWidget);
       expect(find.text('2030-05-10'), findsOneWidget);
@@ -199,6 +203,104 @@ void main() {
       expect(find.text('2030-05-10'), findsOneWidget);
       expect(find.text('12:00 PM'), findsOneWidget);
       expect(find.text('1:00 PM'), findsOneWidget);
+      await t.binding.setSurfaceSize(null);
+    },
+  );
+  testWidgets(
+    'mobile navigation has four large targets and fresh planners are empty',
+    (t) async {
+      final p = Planner(BrowserStore());
+      await t.binding.setSurfaceSize(const Size(320, 640));
+      await t.pumpWidget(EventHub(planner: p));
+      await t.pumpAndSettle();
+      expect(find.textContaining('No account needed'), findsNothing);
+      await t.tap(find.text('Open planner'));
+      await t.pumpAndSettle();
+      expect(p.events, isEmpty);
+      expect(find.text('No events yet'), findsOneWidget);
+      for (final name in ['Home', 'Events', 'Calendar', 'Add event']) {
+        final size = t.getSize(find.byKey(ValueKey('nav-$name')));
+        expect(size.width, greaterThanOrEqualTo(48));
+        expect(size.height, greaterThanOrEqualTo(48));
+      }
+      await t.tap(find.byKey(const ValueKey('nav-Events')));
+      await t.pumpAndSettle();
+      expect(find.text('No events yet'), findsOneWidget);
+      await t.tap(find.byKey(const ValueKey('nav-Calendar')));
+      await t.pumpAndSettle();
+      expect(find.text('An open day'), findsOneWidget);
+      await t.binding.setSurfaceSize(null);
+    },
+  );
+  testWidgets(
+    'date picker selection and time picker Back preserve the form draft',
+    (t) async {
+      final p = Planner(BrowserStore());
+      await t.binding.setSurfaceSize(const Size(390, 844));
+      await t.pumpWidget(EventHub(planner: p, initialLocation: '/events/new'));
+      await t.pumpAndSettle();
+      await t.enterText(
+        find.widgetWithText(TextFormField, 'Title'),
+        'Draft event',
+      );
+      FocusManager.instance.primaryFocus?.unfocus();
+      await t.pumpAndSettle();
+      await t.tap(find.byTooltip('Choose date'));
+      await t.pumpAndSettle();
+      expect(find.byType(DatePickerDialog), findsOneWidget);
+      await t.tap(find.text('20').last);
+      await t.tap(find.text('OK'));
+      await t.pumpAndSettle();
+      final now = DateTime.now();
+      expect(
+        find.text(dateInput(DateTime(now.year, now.month, 20))),
+        findsOneWidget,
+      );
+      expect(find.text('Draft event'), findsOneWidget);
+      await t.ensureVisible(find.byTooltip('Choose start time'));
+      await t.pumpAndSettle();
+      await t.tap(find.byTooltip('Choose start time'));
+      await t.pumpAndSettle();
+      expect(find.byType(TimePickerDialog), findsOneWidget);
+      GoRouter.of(t.element(find.byType(EventForm))).pop();
+      await t.pumpAndSettle();
+      expect(find.byType(TimePickerDialog), findsNothing);
+      expect(find.text('Draft event'), findsOneWidget);
+      expect(p.events, isEmpty);
+      await t.binding.setSurfaceSize(null);
+    },
+  );
+  testWidgets(
+    'filter Back retains choices and phone layouts handle text scaling and keyboard',
+    (t) async {
+      final p = Planner(BrowserStore())..save(fixture());
+      await t.binding.setSurfaceSize(const Size(320, 640));
+      await t.pumpWidget(EventHub(planner: p, initialLocation: '/events'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('Filters'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('Sports'));
+      await t.pumpAndSettle();
+      GoRouter.of(t.element(find.text('Category'))).pop();
+      await t.pumpAndSettle();
+      expect(find.text('Category'), findsNothing);
+      expect(p.category, 'Sports');
+      expect(find.text('No matching events'), findsOneWidget);
+      t.binding.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(t.binding.platformDispatcher.clearTextScaleFactorTestValue);
+      for (final route in ['/dashboard', '/calendar', '/events/new']) {
+        await t.pumpWidget(
+          EventHub(key: UniqueKey(), planner: p, initialLocation: route),
+        );
+        await t.pumpAndSettle();
+        expect(t.takeException(), isNull, reason: 'Text scale 1.3: $route');
+      }
+      t.view.viewInsets = const FakeViewPadding(bottom: 280);
+      addTearDown(t.view.resetViewInsets);
+      await t.pumpAndSettle();
+      await t.ensureVisible(find.text('Save event'));
+      await t.pumpAndSettle();
+      expect(t.takeException(), isNull, reason: 'Keyboard inset');
       await t.binding.setSurfaceSize(null);
     },
   );
