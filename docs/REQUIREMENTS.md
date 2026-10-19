@@ -8,7 +8,7 @@ This maps the user's project brief. The course guide could not be found in this 
 | Personal planner, starts empty | Empty initial state; storage and browser tests; no production fixtures |
 | All event fields, optional organizer/description | Model, add/edit form, details |
 | Required fields, valid date/time, end after start | Form validation and model/storage tests; same-day events |
-| Create/view/edit/delete, confirmation | Seven screens plus routed deletion confirmation; widget/browser tests |
+| Create/view/edit/delete, confirmation | Six screens plus routed deletion confirmation; opens directly on Home as requested in the revised flow; widget/browser tests |
 | Search title/venue; category/status filters | Events list with combined filters; model/browser tests |
 | Chronological upcoming, separate past/attended | Dashboard and Events sections |
 | Browser persistence and invalid-data recovery | Versioned local storage adapter, visible warnings; tests include reload/edit/delete and malformed saved data |

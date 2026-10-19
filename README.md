@@ -8,7 +8,7 @@ Plan seminars, workshops, sports, and club activities. **Interested, Going, and 
 
 ## Use the planner
 
-1. Open the app and select **Open planner**.
+1. Open the app to go straight to **Home**. There is no welcome screen or extra start button.
 2. Tap **Add event**. Enter a title, date and start/end times using the picker buttons (keyboard entry is also supported: `YYYY-MM-DD`, `9:00 AM`), venue, category, and personal status. Organizer and plain-text description are optional. Events start and finish on the same day; end time must follow start time.
 3. Save, then open the event details to edit or delete it. Deletion requires confirmation.
 4. Search event titles or venues in **Events**, open **Filters**, and combine category/status choices. Upcoming events are chronological; use the Past and Attended section chips for those events.
@@ -81,7 +81,7 @@ Invalid saved records are skipped with a visible warning; valid records remain u
 - `lib/models/event.dart`: event data, date/time helpers, persisted-record validation.
 - `lib/storage/`: a tiny storage interface and browser adapter; an in-memory adapter supports tests.
 - `lib/planner.dart`: built-in `ChangeNotifier` state, persistence, ordering, filters, calendar state.
-- `lib/screens/`: welcome/dashboard/list, calendar, form, details, and confirmation screens.
+- `lib/screens/`: home/events list, calendar, form, details, and confirmation screens.
 - `lib/main.dart`: `go_router` browser routes. The green Material theme, bundled font, and custom logo live in `lib/branding.dart`.
 - `test/`, `tool/browser/`: model/storage/widget and compiled-browser checks.
 - `windows_launcher/`: small Go static-file launcher; Go's standard library only.

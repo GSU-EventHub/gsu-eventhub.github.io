@@ -20,6 +20,10 @@ Verified in the Linux cloud workspace on **19 October 2026** using **Flutter 3.4
 
 The web build emitted a nonfatal framework icon-tree-shaking warning naming an unused Cupertino icon family. This app uses bundled Material icons; those icons and the app rendered during browser checks. The build completed successfully. Flutter's optional Wasm dry run also succeeded; the delivered app uses the standard JavaScript web release build.
 
+## Direct Home entry
+
+The welcome screen and Open planner button have been removed at the user’s request. The root URL now renders Home directly. Home navigation targets the root, and older `/#/dashboard` links redirect there. Existing saved events are unaffected. The startup widget and browser checks now assert direct Home entry and browser Back from a form to the root. The earlier development-server result records the previous welcome flow.
+
 ## Mobile interface revision
 
 The current revision adds the approved green branding, locally drawn calendar/G logo, bundled Inter font, empty dashboard, and floating four-action navigation. The account-related phrase has been removed. Existing event storage and its key are preserved; the interface update does not clear saved events.
@@ -54,11 +58,11 @@ The integration could push the implementation but received HTTP 403 when changin
 
 The seven storage/model tests cover an empty first load, save/reload, edits, deletion including the last event, combined search/category/status filters, chronological ordering, partially invalid records, duplicate IDs, invalid JSON/schema recovery, write failure without losing current state, date/time parsing, and invalid persisted durations.
 
-The seven widget tests cover the full welcome/dashboard/create/validate/save/details/edit/delete-confirm/cancel/delete flow; required-field and end-time errors; portrait, landscape, and desktop layouts; calendar selection across navigation; precise timetable start positions, duration heights, overlap lanes, and selecting an hour to prefill date/start/end; empty initial screens; minimum 48-pixel navigation targets; date-picker selection and draft preservation; filter Back behavior; larger text; and a software-keyboard inset.
+The seven widget tests cover the direct Home entry and full create/validate/save/details/edit/delete-confirm/cancel/delete flow; required-field and end-time errors; portrait, landscape, and desktop layouts; calendar selection across navigation; precise timetable start positions, duration heights, overlap lanes, and selecting an hour to prefill date/start/end; empty initial screens; minimum 48-pixel navigation targets; date-picker selection and draft preservation; filter Back behavior; larger text; and a software-keyboard inset.
 
 The compiled-app Chromium checks use an isolated browser context. They exercise root Back to a preceding page; Back/Forward from a form and its date/time pickers; draft preservation; filter-panel Back; URL changes; save across a full refresh; edit and status persistence; Back/Forward and cancellation of deletion confirmation; actual deletion followed by refresh; combined search/category/status filters; calendar date/view and horizontal/vertical scroll restoration; expanded timetable Back; invalid local-storage recovery; and page loading at 320×640, 844×390, and 1440×900. No JavaScript runtime errors or external resource requests occurred during that suite. Responsive widget checks also detect Flutter render overflow, which a DOM-only width check would miss.
 
-Screenshots in [screenshots](screenshots/) show the seven requested screens, an empty desktop dashboard, and a desktop week timetable. Main screens are empty. Only event-details and save-confirmation images use isolated fixtures; the production app never seeds these records.
+Screenshots in [screenshots](screenshots/) show the six current screens, an empty desktop dashboard, and a desktop week timetable. Main screens are empty. Only event-details and save-confirmation images use isolated fixtures; the production app never seeds these records.
 
 ## Not verified here
 

@@ -11,13 +11,13 @@ import 'planner_test.dart' show fixture;
 
 void main() {
   testWidgets(
-    'welcome to empty dashboard, form validation, save, edit and delete',
+    'app opens directly on Home, form validation, save, edit and delete',
     (t) async {
       final p = Planner(BrowserStore());
       await t.pumpWidget(EventHub(planner: p));
       await t.pumpAndSettle();
-      await t.tap(find.text('Open planner'));
-      await t.pumpAndSettle();
+      expect(find.text('Open planner'), findsNothing);
+      expect(find.text('Your planner'), findsOneWidget);
       expect(find.text('No events yet'), findsOneWidget);
       await t.tap(find.text('Add event'));
       await t.pumpAndSettle();
@@ -132,6 +132,10 @@ void main() {
         );
         await t.pumpAndSettle();
         expect(t.takeException(), isNull, reason: '$route at $size');
+        if (route == '/' || route == '/dashboard') {
+          expect(find.text('Your planner'), findsOneWidget);
+          expect(find.text('Open planner'), findsNothing);
+        }
       }
     }
     await t.binding.setSurfaceSize(null);
@@ -214,8 +218,8 @@ void main() {
       await t.pumpWidget(EventHub(planner: p));
       await t.pumpAndSettle();
       expect(find.textContaining('No account needed'), findsNothing);
-      await t.tap(find.text('Open planner'));
-      await t.pumpAndSettle();
+      expect(find.text('Open planner'), findsNothing);
+      expect(find.text('Your planner'), findsOneWidget);
       expect(p.events, isEmpty);
       expect(find.text('No events yet'), findsOneWidget);
       for (final name in ['Home', 'Events', 'Calendar', 'Add event']) {

@@ -31,12 +31,9 @@ class _EventHubState extends State<EventHub> {
     routes: [
       GoRoute(
         path: '/',
-        builder: (c, s) => WelcomeScreen(planner: widget.planner),
-      ),
-      GoRoute(
-        path: '/dashboard',
         builder: (c, s) => HomeScreen(planner: widget.planner),
       ),
+      GoRoute(path: '/dashboard', redirect: (c, s) => '/'),
       GoRoute(
         path: '/events',
         builder: (c, s) => HomeScreen(planner: widget.planner, list: true),
@@ -92,7 +89,7 @@ class _EventHubState extends State<EventHub> {
     errorBuilder: (c, s) => Scaffold(
       body: Center(
         child: FilledButton(
-          onPressed: () => c.go('/dashboard'),
+          onPressed: () => c.go('/'),
           child: const Text('Return to planner'),
         ),
       ),

@@ -60,13 +60,15 @@ async function route(page,path) {
   // A preceding page verifies that Back at the root can leave the application.
   await page.goto(`${base}version.json`);await page.goto(base);await accessible(page);
   await page.goBack();assert.match(page.url(),/version.json/);await page.goForward();await accessible(page);
-  await click(page,'button','Open planner');
-  await eventually(()=>Promise.resolve(page.url().endsWith('/dashboard')),'Dashboard route missing');
+  const atHome=()=>['','#/'].includes(new URL(page.url()).hash);
+  await page.getByText('Your planner',{exact:true}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Open planner',exact:true}).count(),0);
+  assert.ok(atHome(),'Home should be at the app root');
   assert.equal((await readEvents(page)).length,0);
   assert.ok(!(await page.locator('body').innerText()).includes('No account needed'));
   await click(page,'button','Add event');await page.getByRole('textbox',{name:'Title',exact:true}).waitFor();
   assert.match(page.url(),/events\/new/);
-  await page.goBack();await eventually(()=>Promise.resolve(page.url().endsWith('/dashboard')),'Back from form failed');
+  await page.goBack();await eventually(()=>Promise.resolve(atHome()),'Back from form did not return directly Home');
   await page.goForward();await page.getByRole('textbox',{name:'Title',exact:true}).waitFor();
   await fill(page,'Title','Browser test workshop');
   await click(page,'button','Choose date');
@@ -139,11 +141,15 @@ async function route(page,path) {
     await page.setViewportSize(size);
     for(const screen of ['/','/dashboard','/events','/calendar','/events/new']) {
       await route(page,screen);
+      if(screen==='/' || screen==='/dashboard') {
+        await page.getByText('Your planner',{exact:true}).waitFor();
+        assert.ok(atHome(),'Legacy dashboard links should resolve to the root');
+      }
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${screen} horizontal overflow`);
     }
   }
   assert.deepEqual(errors,[],'Browser runtime errors');assert.deepEqual(external,[],'Application requested external resources');
-  console.log('PASS: browser root Back, form and picker Back/Forward, draft preservation, save/reload, edit, deletion/cancel/Back/Forward/reload, search/category/status, filter-panel Back, calendar navigation, responsive routes, invalid storage, and bundled resources.');
+  console.log('PASS: direct Home entry, browser root Back, form and picker Back/Forward, draft preservation, save/reload, edit, deletion/cancel/Back/Forward/reload, search/category/status, filter-panel Back, calendar navigation, responsive routes, invalid storage, and bundled resources.');
  } catch(error) {
    console.error(await page.locator('body').ariaSnapshot());
    console.error('URL',page.url());throw error;

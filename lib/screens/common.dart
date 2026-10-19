@@ -45,7 +45,7 @@ class AppFrame extends StatelessWidget {
                 if (context.canPop()) {
                   context.pop();
                 } else {
-                  context.go('/dashboard');
+                  context.go('/');
                 }
               },
             )
@@ -179,7 +179,7 @@ class PlannerNavigation extends StatelessWidget {
           if (isAdd) {
             context.push(addLocation);
           } else if (i != selected) {
-            context.go(['/dashboard', '/events', '/calendar'][i]);
+            context.go(['/', '/events', '/calendar'][i]);
           }
         },
         style: TextButton.styleFrom(

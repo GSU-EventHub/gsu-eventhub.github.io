@@ -5,55 +5,6 @@ import '../planner.dart';
 import '../models/event.dart';
 import 'common.dart';
 
-class WelcomeScreen extends StatelessWidget {
-  final Planner planner;
-  const WelcomeScreen({super.key, required this.planner});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(
-      child: Content(
-        maxWidth: 540,
-        child: Column(
-          children: [
-            SizedBox(height: MediaQuery.sizeOf(context).height < 500 ? 12 : 70),
-            const HubLogo(size: 64),
-            const SizedBox(height: 25),
-            Text(
-              'GSU EventHub',
-              style: Theme.of(context).textTheme.headlineLarge,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'A personal planner for your campus events.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: HubColors.muted),
-            ),
-            const SizedBox(height: 28),
-            FilledButton.icon(
-              onPressed: () => context.push('/dashboard'),
-              icon: const Icon(Icons.arrow_forward, size: 18),
-              label: const Text('Open planner'),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              'Interested, Going, and Attended are personal labels. They don’t register you with an organizer.',
-              style: TextStyle(fontSize: 12, color: HubColors.muted),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Your events stay in this browser on this device.',
-              style: TextStyle(fontSize: 12, color: HubColors.muted),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
 class HomeScreen extends StatefulWidget {
   final Planner planner;
   final bool list;
