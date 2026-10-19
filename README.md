@@ -64,6 +64,10 @@ To create a public release, a maintainer pushes a `v*` tag (for example `v1.0.0`
 
 ### Android download and install
 
+**[Download the Android classroom/testing APK](https://github.com/GSU-EventHub/gsu-eventhub.github.io/raw/refs/heads/android-apk/GSU-EventHub-Android.apk)** · [View the download files and verification notes](https://github.com/GSU-EventHub/gsu-eventhub.github.io/tree/android-apk)
+
+The compiled APK is also stored on the dedicated `android-apk` branch. The main branch contains source code. This provides a direct download while GitHub Actions is delayed; see the download branch’s README for current Android runtime verification status.
+
 Open a successful [Actions run](https://github.com/GSU-EventHub/gsu-eventhub.github.io/actions), sign in, scroll to **Artifacts**, and download **Android-APK**. Extract the GitHub ZIP and open **GSU-EventHub-Android.apk** on an Android 7.0+ phone. Android may ask you to allow installation from that file source. The APK works offline and has no account, browser, or development-tool requirement. This is not an iPhone/iOS package. See [Android instructions](docs/ANDROID.txt).
 
 The current classroom APK is a release-optimized build signed with a development certificate. Stable production upgrade signing and Play Store publishing are not configured. A different CI development certificate can prevent installing a later APK over the previous one. Uninstalling permits reinstalling but **deletes that app’s events**; retain the current APK while its data matters. No private signing material is committed. GitHub secret administration was unavailable to this integration, so no claim is made that a persistent private signing key was configured.

@@ -1,6 +1,9 @@
 GSU EventHub - Android application
 
-Download the Android-APK artifact from a successful GitHub Actions run.
+Direct classroom APK download:
+https://github.com/GSU-EventHub/gsu-eventhub.github.io/raw/refs/heads/android-apk/GSU-EventHub-Android.apk
+Stored in this repository's android-apk branch, with checksum and verification notes.
+Alternatively download the Android-APK artifact from a successful Actions run.
 Extract the GitHub ZIP and copy GSU-EventHub-Android.apk to your Android phone.
 Open the APK and allow installation from that file source if Android asks.
 Your institution's device policy may restrict sideloading.
