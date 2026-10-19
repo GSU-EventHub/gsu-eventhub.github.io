@@ -1,0 +1,139 @@
+name: Verify and deliver GSU EventHub
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: eventhub-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.tool_cache }}/flutter-3.47.7
+            ~/.pub-cache
+          key: flutter-linux-stable-3.47.7-abaf9c5237
+      - name: Install pinned Flutter 3.47.7 stable
+        shell: bash
+        run: |
+          sdk_dir="$RUNNER_TOOL_CACHE/flutter-3.47.7"
+          if [ ! -x "$sdk_dir/bin/flutter" ]; then
+            git clone --depth 1 --branch 3.47.7 https://github.com/flutter/flutter.git "$sdk_dir"
+            git -C "$sdk_dir" switch -c stable
+          fi
+          test "$(git -C "$sdk_dir" rev-parse HEAD)" = abaf9c523780a608bd46686fd5e53740a07077f8
+          echo "$sdk_dir/bin" >> "$GITHUB_PATH"
+          "$sdk_dir/bin/flutter" --version
+      - run: flutter config --enable-web --no-analytics
+      - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: flutter analyze --no-pub
+      - run: flutter test --no-pub
+      - run: flutter build web --release --no-pub --base-href / --no-web-resources-cdn
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tool/browser/package-lock.json
+      - run: npm ci
+        working-directory: tool/browser
+      - run: npx playwright install --with-deps chromium
+        working-directory: tool/browser
+      - name: Browser behavior checks
+        run: |
+          python3 -m http.server 8080 --bind 127.0.0.1 --directory build/web > /tmp/eventhub-server.log 2>&1 &
+          node tool/browser/check.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compiled-web
+          path: build/web
+          if-no-files-found: error
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+  pages:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deploy
+  windows:
+    needs: verify
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: compiled-web
+          path: dist/GSU-EventHub-Windows-x64/web
+      - run: go test ./...
+        working-directory: windows_launcher
+      - name: Compile standalone x64 launcher
+        shell: pwsh
+        run: |
+          $env:GOOS = "windows"
+          $env:GOARCH = "amd64"
+          $env:CGO_ENABLED = "0"
+          Push-Location windows_launcher
+          go build -trimpath -o ../dist/GSU-EventHub-Windows-x64/GSU-EventHub.exe .
+          if ($LASTEXITCODE -ne 0) { throw "Launcher build failed" }
+          Pop-Location
+          Copy-Item docs/WINDOWS.txt dist/GSU-EventHub-Windows-x64/READ-ME.txt
+          Compress-Archive -Path dist/GSU-EventHub-Windows-x64 -DestinationPath dist/GSU-EventHub-Windows-x64.zip
+          Expand-Archive dist/GSU-EventHub-Windows-x64.zip dist/package-test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+        working-directory: tool/browser
+      - run: npx playwright install chromium
+        working-directory: tool/browser
+      - name: Test EXE from extracted ZIP on Windows
+        shell: pwsh
+        run: ./tool/test-windows-package.ps1 -PackagePath dist/package-test/GSU-EventHub-Windows-x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-x64-tested-package
+          path: dist/GSU-EventHub-Windows-x64.zip
+          if-no-files-found: error
+  release:
+    if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
+    needs: [verify, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Windows-x64-tested-package
+          path: release
+      - uses: actions/download-artifact@v4
+        with:
+          name: compiled-web
+          path: compiled-web
+      - run: cd compiled-web && zip -r ../release/GSU-EventHub-Web.zip .
+      - name: Publish tested downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release create "$GITHUB_REF_NAME" release/* --title "GSU EventHub $GITHUB_REF_NAME" --notes "Compiled web app and Windows x64 launcher. Extract the Windows ZIP fully, then open GSU-EventHub.exe. No development tools required."

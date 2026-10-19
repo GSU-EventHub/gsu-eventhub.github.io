@@ -1,0 +1,20 @@
+GSU EventHub for Windows x64
+
+1. Extract the ENTIRE ZIP into a normal folder.
+2. Open GSU-EventHub.exe. Keep its console window open while using the planner.
+3. The launcher serves the bundled app and opens your default browser.
+   If needed, enter http://127.0.0.1:47831/ into that browser.
+4. Close the console window to stop the server.
+
+No Flutter, Python, Node, or development tools are needed. The web folder must
+remain beside the EXE. A modern browser is required. This is a locally served
+web app, not a native Windows or Android application.
+
+Your plans are stored in the browser, not inside this folder. Use the same
+browser/profile and address each time. Clearing site data deletes your plans.
+The hosted website and this local app have separate storage. Private browsing
+may erase storage when the session ends. There is no cloud backup or sync.
+The fixed port preserves the browser origin between launches; only run one
+copy at a time. Close another launcher if the address is already in use.
+
+The executable is unsigned. Follow your device or institution's security policy.

@@ -1,0 +1,10 @@
+.dart_tool/
+.packages
+build/
+.flutter-plugins*
+.idea/
+*.iml
+coverage/
+dist/
+windows_launcher/gsu-eventhub-launcher
+tool/browser/node_modules/
